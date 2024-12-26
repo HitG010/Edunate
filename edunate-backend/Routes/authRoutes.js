@@ -34,17 +34,23 @@ router.post('/login/user', (req, res, next) => {
 
 // Login for Institutions
 router.post('/login/institution', (req, res, next) => {
-  passport.authenticate('institution-local', (err, user, info) => {
+  passport.authenticate('institution-local',{
+    successRedirect: '/home',
+    failureRedirect: '/instLogin',
+  }, (err, user, info) => {
     if (err) return next(err);
     if (!user) return res.status(400).json({ message: info.message });
 
-    console.log(req.logIn.toString());
     req.logIn(user, (err) => {
       if (err) return next(err);
+      console.log('Session created:', req.session);
+      console.log('Logged-in user:', req.user);
       return res.json({ message: 'Institution login successful', user });
     });
   })(req, res, next);
 });
+
+
 
 
 module.exports = router;

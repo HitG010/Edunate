@@ -66,50 +66,6 @@ app.use(
   })
 );
 
-// passport.serializeUser((user, done) => {
-//   console.log("Serialized User: ", user);
-//   done(null, user.id);
-// });
-
-// passport.deserializeUser((id, done) => {
-//   console.log("Deserialized User: ", id);
-//   try {
-//     User.findById(id).then((user) => done(null, user));
-//   } catch (err) {
-//     done(err);
-//   }
-// });
-
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: process.env.GOOGLE_CLIENT_ID,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//       callbackURL: "/auth/google/callback",
-//     },
-//     async (accessToken, refreshToken, profile, done) => {
-//       const newUser = {
-//         googleId: profile.id,
-//         username: profile.displayName,
-//         email: profile.emails[0].value,
-//       };
-
-//       try {
-//         let user = await User.findOne({ googleId: profile.id });
-
-//         if (user) {
-//           done(null, user);
-//         } else {
-//           user = await User.create(newUser);
-//           done(null, user);
-//         }
-//       } catch (err) {
-//         console.log(err);
-//       }
-//     }
-//   )
-// );
-
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -143,17 +99,9 @@ app.get("/logout", (req, res) => {
   req.logout(() => res.redirect("http://localhost:5173/"));
 });
 
-app.get("/getUserDetails", (req, res) => {
-  console.log('session: ', req.session);
-  if (req.isAuthenticated()) {
-    console.log("User: ", req.user);
-    const { username, email } = req.user;
-    res.json({ username, email });
-  } else {
-    // res.status(401).json({ msg: 'You are not authenticated' });
-    console.log("User not authenticated");
-    res.send(null);
-  }
+app.get("/fetchUser", ensureAuthenticated, (req, res) => {
+  console.log("User: ", req.user);
+  res.json(req.user);
 });
 
 app.post("/instituteSignUp", (req, res) => {
@@ -181,6 +129,13 @@ app.post("/instituteSignUp", (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   });
 });
+
+app.use((req, res, next) => {
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+  next();
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

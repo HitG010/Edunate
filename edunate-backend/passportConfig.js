@@ -97,18 +97,18 @@ passport.use(
   )
 );
 
-passport.serializeUser((user, done) => {
-  console.log("Serialized User: ", user);
-  done(null, user.id);
-});
+// passport.serializeUser((user, done) => {
+//   console.log("Serialized User: ", user);
+//   done(null, user.id);
+// });
 
-passport.deserializeUser((id, done) => {
-  console.log("Deserialized User: ", id);
-  try {
-    User.findById(id).then((user) => done(null, user));
-  } catch (err) {
-    done(err);
-  }
-});
+// passport.deserializeUser((id, done) => {
+//   console.log("Deserialized User: ", id);
+//   try {
+//     User.findById(id).then((user) => done(null, user));
+//   } catch (err) {
+//     done(err);
+//   }
+// });
 
 module.exports = passport;

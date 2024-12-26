@@ -135,7 +135,7 @@ const benefits = [
 
 export default function Landing() {
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center w-full text-[#220000]">
       <Header />
       <div className="main flex flex-col items-center w-full mt-20 mb-20">
         <div className="flex justify-center items-center w-full h-[80vh]">
@@ -155,7 +155,7 @@ export default function Landing() {
                 rightful purpose, transparently and impactfully.
               </p>
 
-              <button className="gap-2 bg-[#220000] text-white py-2 px-8 rounded-lg text-xl flex justify-center items-center">
+              <button className="gap-2 bg-[#220000] text-[#f0f0f0] font-semibold py-2 px-8 rounded-lg text-xl flex justify-center items-center">
                 <a href="/signup">Get Started</a>
                 <CgArrowTopRight className="h-8 w-6" />
               </button>
@@ -166,7 +166,7 @@ export default function Landing() {
             ></img>
           </div>
         </div>
-        <div className="features flex flex-col justify-around items-center w-[90%] h-[80vh]">
+        <div className="features flex flex-col justify-around items-center w-[90%] h-[80vh] mt-16">
           <div className="flex flex-col justify-center items-center w-[80%] text-center">
             <h1 className="text-3xl">Core Features of Edunate</h1>
             <h1 className="text-6xl font-extrabold mt-5">
@@ -188,7 +188,7 @@ export default function Landing() {
             <CgArrowTopRight className="h-8 w-6" />
           </button>
         </div>
-        <div className="choose flex flex-col w-[90%] p-10 justify-around items-center">
+        <div className="choose flex flex-col w-[90%] p-10 justify-around items-center mt-16">
           <h1 className="text-6xl font-bold">Why Choose Edunate? </h1>
           <div className="flex flex-col mt-10">
             {benefits.map((benefit, index) => (
@@ -221,11 +221,11 @@ export default function Landing() {
             </div>
             <div className="flex w-full justify-start items-center mt-5 gap-3">
               <button className="gap-2 bg-[#220000] text-white py-2 px-8 rounded-lg text-xl flex justify-center items-center">
-                <a href="/signup">Sign Up as an Alumni</a>
+                <a href="/login">Sign Up as an Alumni</a>
               </button>
               <p className="font-bold text-xl">or</p>
               <button className="gap-2 bg-[#220000] text-white py-2 px-8 rounded-lg text-xl flex justify-center items-center">
-                <a href="/signup">Register as an Instituition</a>
+                <a href="/instLogin">Register as an Instituition</a>
               </button>
             </div>
           </div>

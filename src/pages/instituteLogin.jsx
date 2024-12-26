@@ -5,26 +5,15 @@ const InstituteSignUp = () => {
   const [instituteName, setInstituteName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [verificationDocument, setVerificationDocument] = useState("");
-  const [address, setAddress] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validate passwords match
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
 
     // Prepare form data
     const formData = {
       instituteName,
       email,
       password,
-      address,
-      verificationDocument,
     };
     
     console.log("Form Data:", formData);
@@ -34,7 +23,7 @@ const InstituteSignUp = () => {
     const sendData = async () => {
       try {
         const response = await axios.post(
-          "http://localhost:5000/instituteSignUp",
+          "http://localhost:5000/auth/login/institution",
           formData,
           {
             headers: {
@@ -43,25 +32,25 @@ const InstituteSignUp = () => {
           }
         );
         alert(
-          "Data submitted successfully! You will be notified once your account is verified."
+          "Welcome! You are now logged in."
         );
         console.log("Response:", response.data);
       } catch (err) {
         if(err.response.status === 400) {
-            alert("Email already exists!");
+            console.log(err.response.data.message);
         }
         console.error("Error:", err);
       }
     };
     sendData();
-    window.location.href = "/instLogin";
+    window.location.href = "/home";
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg p-8 w-96">
         <h1 className="text-2xl font-bold mb-6" style={{ color: "#220000" }}>
-          Get Started
+          Institution Login
         </h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -76,20 +65,6 @@ const InstituteSignUp = () => {
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
               onChange={(e) => setInstituteName(e.target.value)}
               value={instituteName}
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: "#220000" }}
-            >
-              Address
-            </label>
-            <input
-              type="text"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
-              onChange={(e) => setAddress(e.target.value)}
-              value={address}
             />
           </div>
           <div className="mb-4">
@@ -120,39 +95,11 @@ const InstituteSignUp = () => {
               value={password}
             />
           </div>
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: "#220000" }}
-            >
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              value={confirmPassword}
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-sm font-medium mb-1"
-              style={{ color: "#220000" }}
-            >
-              Verification Document Link
-            </label>
-            <input
-              type="url"
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
-              onChange={(e) => setVerificationDocument(e.target.value)}
-              value={verificationDocument}
-            />
-          </div>
           <button
             type="submit"
             className="w-full bg-[#220000] text-white py-2 rounded-md hover:bg-[#22000080] transition"
           >
-            Register
+            Login
           </button>
         </form>
       </div>

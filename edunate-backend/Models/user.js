@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
-const UserScheme = new mongoose.Schema({
+const Schema = mongoose.Schema;
+const bcrypt = require('bcrypt');
+
+const UserSchema = new mongoose.Schema({
     googleId: {
         type: String,
-        required: true
+        // required: true
     },
     username: {
         type: String,
@@ -11,7 +14,55 @@ const UserScheme = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        unique: true
+    },
+    password: {
+        type: String
+    },
+    donations: [
+        {
+          fundraiserId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Fundraiser',
+          },
+          amount: {
+            type: Number,
+            required: true,
+          },
+          date: {
+            type: Date,
+            default: Date.now,
+          },
+        },
+      ],
+    role: {
+        type: String,
+        enum: ['Student', 'Alumni'],
+        default: 'Student'
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    institute: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Institute'
     }
 });
 
-module.exports = mongoose.model('User', UserScheme);
+UserSchema.pre('save', async function(next) {
+    if(!this.isModified('password')) {
+        next();
+    }
+    try{
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    }
+    catch(err) {
+        next(err);
+    }
+});
+
+
+module.exports = mongoose.model('User', UserSchema);

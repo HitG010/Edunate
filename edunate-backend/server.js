@@ -3,13 +3,17 @@ const { exec } = require("child_process");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const session = require("express-session");
-const passport = require("passport");
+// const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("./Models/user");
+const Institute = require("./Models/institute");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
-// const userRoutes = require("./Routes/userRoutes");
+const passport = require('./passportConfig');
+const authRoutes = require("./Routes/authRoutes");
 const path = require("path");
+const {ensureAuthenticated, checkRole} = require('./authMiddleware');
+// const user = require("./Models/user");
 
 const mongoURI =
   "mongodb+srv://bindrakartik64:QZ9VT2rSpTMBMjTC@edunate-0.2vycy.mongodb.net/?retryWrites=true&w=majority&appName=edunate-0";
@@ -62,52 +66,54 @@ app.use(
   })
 );
 
-passport.serializeUser((user, done) => {
-  console.log("Serialized User: ", user);
-  done(null, user.id);
-});
+// passport.serializeUser((user, done) => {
+//   console.log("Serialized User: ", user);
+//   done(null, user.id);
+// });
 
-passport.deserializeUser((id, done) => {
-  console.log("Deserialized User: ", id);
-  try {
-    User.findById(id).then((user) => done(null, user));
-  } catch (err) {
-    done(err);
-  }
-});
+// passport.deserializeUser((id, done) => {
+//   console.log("Deserialized User: ", id);
+//   try {
+//     User.findById(id).then((user) => done(null, user));
+//   } catch (err) {
+//     done(err);
+//   }
+// });
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      const newUser = {
-        googleId: profile.id,
-        username: profile.displayName,
-        email: profile.emails[0].value,
-      };
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: process.env.GOOGLE_CLIENT_ID,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//       callbackURL: "/auth/google/callback",
+//     },
+//     async (accessToken, refreshToken, profile, done) => {
+//       const newUser = {
+//         googleId: profile.id,
+//         username: profile.displayName,
+//         email: profile.emails[0].value,
+//       };
 
-      try {
-        let user = await User.findOne({ googleId: profile.id });
+//       try {
+//         let user = await User.findOne({ googleId: profile.id });
 
-        if (user) {
-          done(null, user);
-        } else {
-          user = await User.create(newUser);
-          done(null, user);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    }
-  )
-);
+//         if (user) {
+//           done(null, user);
+//         } else {
+//           user = await User.create(newUser);
+//           done(null, user);
+//         }
+//       } catch (err) {
+//         console.log(err);
+//       }
+//     }
+//   )
+// );
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use("/auth", authRoutes);
 
 // redirect user to google for authentication
 app.get(
@@ -129,23 +135,16 @@ app.get(
   }
 );
 
-app.get("/home", isLoggedin, (req, res) => {
-  res.send("Welcome to DeepTrace");
+app.get("/home", ensureAuthenticated, (req, res) => {
+  res.send("Welcome to Edunate", req.user);
 });
-
-function isLoggedin(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
-
-  res.redirect("/login");
-}
 
 app.get("/logout", (req, res) => {
   req.logout(() => res.redirect("http://localhost:5173/"));
 });
 
 app.get("/getUserDetails", (req, res) => {
+  console.log('session: ', req.session);
   if (req.isAuthenticated()) {
     console.log("User: ", req.user);
     const { username, email } = req.user;
@@ -158,9 +157,29 @@ app.get("/getUserDetails", (req, res) => {
 });
 
 app.post("/instituteSignUp", (req, res) => {
-  const { instituteName, email, password, verificationDocument } = req.body;
-  console.log(req.body);
-  res.send("Document uploaded successfully");
+  const { instituteName, email, password, address, verificationDocument } = req.body;
+  // console.log("Institute Name: ", instituteName);
+  // res.send("Document uploaded successfully");
+  // add data to the database
+  Institute.create({
+    name: instituteName,
+    email,
+    password,
+    address: address,
+    verificationDocument,
+  })
+  .then(user => {
+    console.log("Insitution created: ", user);
+    res.json({ message: "Institute created", user });
+  })
+  .catch(err => {
+    console.log(err);
+    if(err.code === 11000) {
+      res.status(400).json({ message: "Institute already exists" });
+      return;
+    }
+    res.status(500).json({ message: "Internal server error" });
+  });
 });
 
 app.listen(port, () => {

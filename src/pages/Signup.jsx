@@ -1,23 +1,25 @@
 import React from "react";
-import { CgGoogle } from "react-icons/cg";
 
-const LoginPage = () => {
+const SignupPage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="bg-white shadow-lg rounded-lg p-8 w-96">
         <h1 className="text-2xl font-bold mb-6" style={{ color: "#220000" }}>
-          Get Started
+          Sign Up
         </h1>
-        <button
-          onClick={() => {
-            window.location.href = "http://localhost:5000/auth/google";
-          }}
-          className="flex gap-2 justify-center items-center w-full text-[#220000] font-semibold py-2 rounded-md border border-[#220000] hover:bg-[#22000010] transition"
-        >
-          <CgGoogle className="w-5 h-5"/> Continue with Google
-        </button>
-        <p className="w-full text-center">or</p>
         <form>
+          <div className="mb-4">
+            <label
+              className="block text-sm font-medium mb-1"
+              style={{ color: "#220000" }}
+            >
+              Name
+            </label>
+            <input
+              type="text"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-400"
+            />
+          </div>
           <div className="mb-4">
             <label
               className="block text-sm font-medium mb-1"
@@ -44,26 +46,32 @@ const LoginPage = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-[#220000] text-white py-2 rounded-md hover:bg-[#22000080] transition"
-          >
-            Login/Register
-          </button>
-        </form>
-        
-        {/* <p className="text-sm mt-4" style={{ color: "#220000" }}>
-          Don't have an account?{" "}
-          <button
-            onClick={()=>{
-              window.location.href = "/signup";
-            }}
-            className="text-[#220000] font-bold hover:underline"
+            className="w-full bg-gray-700 text-white py-2 rounded-md hover:bg-gray-800 transition"
           >
             Sign Up
           </button>
-        </p> */}
+        </form>
+          <p className="w-full text-center">or</p>
+          <button
+            onClick = {() => {window.location.href = "http://localhost:5000/auth/google";}}
+            className="w-full bg-gray-700 text-white py-2 rounded-md hover:bg-gray-800 transition"
+          >
+            Continue with Google
+          </button>
+        <p className="text-sm mt-4" style={{ color: "#220000" }}>
+          Already have an account?{" "}
+          <button
+            onClick={() => {
+                window.location.href = "/login";
+            }}
+            className="text-gray-700 font-medium hover:underline"
+          >
+            Login
+          </button>
+        </p>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default SignupPage;

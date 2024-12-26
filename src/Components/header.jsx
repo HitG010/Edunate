@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Header() {
   return (
-    <div className="flex justify-around p-8 items-center w-[80%]">
+    <div className="flex justify-around p-8 items-center w-[80%] fixed top-0 z-50">
       <Link href="/institutions">Institutions</Link>
       <Link href="/Donation Pools">Donation Pools</Link>
       <Link href="/home">Edunate</Link>

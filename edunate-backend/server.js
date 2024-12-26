@@ -9,7 +9,7 @@ const User = require("./Models/user");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 // const userRoutes = require("./Routes/userRoutes");
-const path = require('path');
+const path = require("path");
 
 const mongoURI =
   "mongodb+srv://bindrakartik64:QZ9VT2rSpTMBMjTC@edunate-0.2vycy.mongodb.net/?retryWrites=true&w=majority&appName=edunate-0";
@@ -56,7 +56,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(
-    cors({
+  cors({
     origin: "http://localhost:5173",
     credentials: true, // If using cookies for authentication
   })
@@ -145,18 +145,17 @@ app.get("/logout", (req, res) => {
   req.logout(() => res.redirect("http://localhost:5173/"));
 });
 
-app.get('/getUserDetails', (req, res) => {
-    if (req.isAuthenticated()) {
-        console.log("User: ", req.user);
-        const { username, email } = req.user;
-        res.json({ username, email });
-    } else {
-        // res.status(401).json({ msg: 'You are not authenticated' });
-        console.log("User not authenticated");
-        res.send(null);
-    }
+app.get("/getUserDetails", (req, res) => {
+  if (req.isAuthenticated()) {
+    console.log("User: ", req.user);
+    const { username, email } = req.user;
+    res.json({ username, email });
+  } else {
+    // res.status(401).json({ msg: 'You are not authenticated' });
+    console.log("User not authenticated");
+    res.send(null);
+  }
 });
-
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

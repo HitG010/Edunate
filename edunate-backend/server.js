@@ -157,6 +157,12 @@ app.get('/getUserDetails', (req, res) => {
     }
 });
 
+app.post("/instituteSignUp", (req, res) => {
+  const { instituteName, email, password, verificationDocument } = req.body;
+  console.log(req.body);
+  res.send("Document uploaded successfully");
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

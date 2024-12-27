@@ -10,7 +10,7 @@ const MilestoneSchema = new mongoose.Schema({
   description: { type: String, required: true },
   targetAmount: { type: Number, required: true },
   completed: { type: Boolean, default: false },
-  proofOfWork: { type: ProofOfWorkSchema, required: true },
+  proofOfWork: { type: ProofOfWorkSchema },
 });
 
 const FundraisingSchema = new mongoose.Schema(

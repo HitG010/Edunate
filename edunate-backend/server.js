@@ -7,6 +7,7 @@ const session = require("express-session");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("./Models/user");
 const Institute = require("./Models/institute");
+const Fundraiser = require("./Models/fundraiser");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const passport = require("./passportConfig");
@@ -266,4 +267,66 @@ app.post("/updateDetails", async (req, res) => {
     console.log(err);
     res.status(500).json({ message: "Internal server error" });
   }
+});
+
+app.get("/getActiveFundRaisers", async (req, res) => {
+  console.log("Institution ID:", req.query.institutionId);
+  await Fundraiser.find({
+    institutionId: req.query.institutionId,
+    status: "Active",
+  })
+    .then((fundRaisers) => {
+      console.log("Fundraisers:", fundRaisers);
+      res.json(fundRaisers);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.get("/getPastFundRaisers", async (req, res) => {
+  console.log("Institution ID:", req.query.institutionId);
+  await Fundraiser.find({
+    institutionId: req.query.institutionId,
+    status: "Completed",
+  })
+    .then((fundRaisers) => {
+      console.log("Fundraisers:", fundRaisers);
+      res.json(fundRaisers);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.get("/getOtherFundraisers", async (req, res) => {
+  console.log("Institution ID:", req.query.institutionId);
+  await Fundraiser.find({
+    institutionId: { $ne: req.query.institutionId },
+    status: "Active",
+  })
+    .then((fundRaisers) => {
+      console.log("Fundraisers:", fundRaisers);
+      res.json(fundRaisers);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.post("/createFundRaiser", async (req, res) => {
+  const data = req.body;
+  console.log("Data:", data);
+  Fundraiser.create(data)
+    .then((fundRaiser) => {
+      console.log(fundRaiser);
+      res.json({ message: "Fundraiser created", fundRaiser });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
 });

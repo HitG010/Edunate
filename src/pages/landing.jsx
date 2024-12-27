@@ -156,7 +156,7 @@ export default function Landing() {
               </p>
 
               <button className="gap-2 bg-[#220000] text-[#f0f0f0] font-semibold py-2 px-8 rounded-lg text-xl flex justify-center items-center">
-                <a href="/signup">Get Started</a>
+                <a href="/login">Get Started</a>
                 <CgArrowTopRight className="h-8 w-6" />
               </button>
             </div>

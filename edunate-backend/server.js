@@ -73,7 +73,7 @@ app.use("/auth", authRoutes);
 
 // redirect user to google for authentication
 app.get(
-  "/auth/google",
+  "/auth/google/",
   passport.authenticate("google", {
     scope: ["profile", "email"],
   })
@@ -90,6 +90,22 @@ app.get(
     res.redirect("http://localhost:5173/home");
   }
 );
+
+// app.post("/store-role", (req, res) => {
+//   if(!req.session) {
+//     return res.status(500).json({ message: "Session not found" });
+//   }
+//   console.log("Role:", req.body.role);
+//   req.session.role = req.body.role;
+//   req.session.save((err) => {
+//     if (err) {
+//       console.log(err);
+//       return res.status(500).json({ message: "Internal server error" });
+//     }
+//     console.log(req.session);
+//     res.json({ message: "Role stored" });
+//   });
+// });
 
 app.get("/home", ensureAuthenticated, (req, res) => {
   res.send("Welcome to Edunate", req.user);

@@ -23,28 +23,8 @@ const institutionSchema = new Schema({
     },
     fundraisers: [
       {
-        // type: mongoose.Schema.Types.ObjectId,
-        // ref: 'Fundraiser',
-        name: {
-            type: String,
-            required: true
-        },
-        description: {
-            type: String,
-            required: true
-        },
-        targetAmount: {
-            type: Number,
-            required: true
-        },
-        currentAmount: {
-            type: Number,
-            default: 0
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Fundraiser',
       },
     ],
     reputationScore: {

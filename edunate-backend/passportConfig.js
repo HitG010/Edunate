@@ -4,6 +4,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const bcrypt = require('bcrypt');
 const User = require('./Models/user');
 const Institution = require('./Models/institute');
+const AllUsers = require('./Models/allUsers');
 
 // Common logic for user verification
 async function verifyUser(email, password, Model, done) {
@@ -48,24 +49,24 @@ passport.use(
 );
 
 // Serialize User
-passport.serializeUser((user, done) => {
-  console.log('Serialized User: ', user);
-  done(null, { id: user.id, role: user.role });
-});
+// passport.serializeUser((user, done) => {
+//   console.log('Serialized User: ', user);
+//   done(null, { id: user.id, role: user.role });
+// });
 
 // Deserialize User
-passport.deserializeUser(async (obj, done) => {
-  try {
-    let user;
-    if (obj.role === 'Student') user = await User.findById(obj.id);
-    else if (obj.role === 'Alumni') user = await User.findById(obj.id);
-    else if (obj.role === 'Institution') user = await Institution.findById(obj.id);
+// passport.deserializeUser(async (obj, done) => {
+//   try {
+//     let user;
+//     if (obj.role === 'student') user = await User.findById(obj.id);
+//     else if (obj.role === 'alumni') user = await User.findById(obj.id);
+//     else if (obj.role === 'institution') user = await Institution.findById(obj.id);
 
-    done(null, user);
-  } catch (err) {
-    done(err);
-  }
-});
+//     done(null, user);
+//   } catch (err) {
+//     done(err);
+//   }
+// });
 
 passport.use(
   new GoogleStrategy(
@@ -74,7 +75,10 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/auth/google/callback",
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (req, accessToken, refreshToken, profile, done) => {
+      // const { role } = req.session;
+      // const role = req.query.role;
+      // const Model = AllUsers;
       const newUser = {
         googleId: profile.id,
         username: profile.displayName,
@@ -97,18 +101,18 @@ passport.use(
   )
 );
 
-// passport.serializeUser((user, done) => {
-//   console.log("Serialized User: ", user);
-//   done(null, user.id);
-// });
+passport.serializeUser((user, done) => {
+  console.log("Serialized User: ", user);
+  done(null, user.id);
+});
 
-// passport.deserializeUser((id, done) => {
-//   console.log("Deserialized User: ", id);
-//   try {
-//     User.findById(id).then((user) => done(null, user));
-//   } catch (err) {
-//     done(err);
-//   }
-// });
+passport.deserializeUser((id, done) => {
+  console.log("Deserialized User: ", id);
+  try {
+    User.findById(id).then((user) => done(null, user));
+  } catch (err) {
+    done(err);
+  }
+});
 
 module.exports = passport;

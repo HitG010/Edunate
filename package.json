@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@opencampus/ocid-connect-js": "^1.2.3",
+    "@opencampus/ocid-connect-js": "^1.2.5",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
     "connect-mongo": "^5.1.0",
@@ -37,6 +37,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
+    "hardhat": "^2.22.17",
     "vite": "^6.0.5"
   }
 }

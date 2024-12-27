@@ -9,10 +9,10 @@ const User = require("./Models/user");
 const Institute = require("./Models/institute");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
-const passport = require('./passportConfig');
+const passport = require("./passportConfig");
 const authRoutes = require("./Routes/authRoutes");
 const path = require("path");
-const {ensureAuthenticated, checkRole} = require('./authMiddleware');
+const { ensureAuthenticated, checkRole } = require("./authMiddleware");
 // const user = require("./Models/user");
 
 const mongoURI =
@@ -116,7 +116,7 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/fetchUser", ensureAuthenticated, (req, res) => {
-  console.log("User: ", req.user);
+  console.log("User: ", req.user._id);
   res.json(req.user);
 });
 
@@ -124,8 +124,13 @@ app.post("/storeOCdeets", (req, res) => {
   console.log("OC deets: ", req.body);
   const { openCampusID, walletAdd, user } = req.body;
   // add data to the database
-  try{
-    const Model = user.role === 'Student' ? User : user.role === 'Alumni' ? User : Institute;
+  try {
+    const Model =
+      user.role === "student"
+        ? User
+        : user.role === "alumni"
+        ? User
+        : Institute;
 
     Model.findByIdAndUpdate(user._id, {
       openCampusId: openCampusID,
@@ -138,25 +143,25 @@ app.post("/storeOCdeets", (req, res) => {
     //   console.log(user.openCampusId, user.walletAddress);
     //   res.json({ message: "Data stored", user });
     // });
-  }
-  catch(err) {
+  } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error" });
   }
-}
-);
+});
 
 app.post("/storeRole", async (req, res) => {
   const { role, user } = req.body;
 
   // Validate required fields
   if (!role || !user || !user._id) {
-    return res.status(400).json({ message: "Invalid request: Role or user details missing." });
+    return res
+      .status(400)
+      .json({ message: "Invalid request: Role or user details missing." });
   }
 
   try {
     // Determine the correct model based on the role
-    const Model = role === 'student' || role === 'alumni' ? User : Institute;
+    const Model = role === "student" || role === "alumni" ? User : Institute;
 
     // Find and update the user's role
     const updatedUser = await Model.findByIdAndUpdate(
@@ -170,16 +175,19 @@ app.post("/storeRole", async (req, res) => {
     }
 
     console.log("Updated Role:", updatedUser.role);
-    return res.json({ message: "Role stored successfully.", user: updatedUser });
+    return res.json({
+      message: "Role stored successfully.",
+      user: updatedUser,
+    });
   } catch (err) {
     console.error("Error updating role:", err);
     return res.status(500).json({ message: "Internal server error." });
   }
 });
 
-
 app.post("/instituteSignUp", (req, res) => {
-  const { instituteName, email, password, address, verificationDocument } = req.body;
+  const { instituteName, email, password, address, verificationDocument } =
+    req.body;
   // console.log("Institute Name: ", instituteName);
   // res.send("Document uploaded successfully");
   // add data to the database
@@ -190,27 +198,72 @@ app.post("/instituteSignUp", (req, res) => {
     address: address,
     verificationDocument,
   })
-  .then(user => {
-    console.log("Insitution created: ", user);
-    res.json({ message: "Institute created", user });
-  })
-  .catch(err => {
-    console.log(err);
-    if(err.code === 11000) {
-      res.status(400).json({ message: "Institute already exists" });
-      return;
-    }
-    res.status(500).json({ message: "Internal server error" });
-  });
+    .then((user) => {
+      console.log("Insitution created: ", user);
+      res.json({ message: "Institute created", user });
+    })
+    .catch((err) => {
+      console.log(err);
+      if (err.code === 11000) {
+        res.status(400).json({ message: "Institute already exists" });
+        return;
+      }
+      res.status(500).json({ message: "Internal server error" });
+    });
 });
 
 app.use((req, res, next) => {
-  console.log('Session:', req.session);
-  console.log('User:', req.user);
+  console.log("Session:", req.session);
+  console.log("User:", req.user);
   next();
 });
 
-
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+});
+
+app.post("/updateDetails", async (req, res) => {
+  const { role, details, user } = req.body;
+  console.log("Role:", role);
+  console.log("Details:", details);
+  console.log("User:", user);
+  // add data to the database
+  try {
+    const Model =
+      role === "student" ? User : role === "alumni" ? User : Institute;
+    const newDetails = details[role];
+    console.log("New Details:", newDetails);
+    if (role === "institution") {
+      // create a new institute in mongo
+      const response = await User.findById(user._id);
+      newDetails._id = response._id;
+      newDetails.email = response.email;
+
+      newDetails.role = "Institution";
+      newDetails.googleId = response.googleId;
+      console.log("New Details:", newDetails);
+      Model.create(newDetails).then((user) => {
+        console.log(user);
+        res.json({ message: "Details updated", user });
+      });
+      // Update the user from the user collection role to institution
+      User.findByIdAndUpdate(user._id, {
+        role: "Institution",
+        username: newDetails.name,
+      }).then((user) => {
+        console.log(user);
+      });
+    }
+    if (role === "student" || role === "alumni") {
+      const response = await Institute.findOne({ name: newDetails.institute });
+      newDetails.institute = response._id;
+      Model.findByIdAndUpdate(user._id, newDetails).then((user) => {
+        console.log(user);
+        res.json({ message: "Details updated", user });
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });

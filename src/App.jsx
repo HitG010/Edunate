@@ -11,6 +11,7 @@ import OCAuthProvider from "./Components/ocid.jsx";
 import RedirectHandler from "./Components/redirectHandler.jsx";
 import OcidLogin from "./pages/ocidLogin.jsx";
 import ConnectWithOCID from "./pages/Oclogin.jsx";
+import UpdateDetails from "./pages/updateDetails.jsx";
 
 const loginSuccess = () => {
   console.log("Login Success");
@@ -33,6 +34,7 @@ function App() {
             <Route path="/instLogin" element={<InstituteLogin />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/instSignup" element={<InstituteSignUp />} />
+            <Route path="/updateDetails" element={<UpdateDetails />} />
           </Routes>
         </Router>
       </OCAuthProvider>

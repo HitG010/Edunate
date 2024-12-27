@@ -64,6 +64,14 @@ const institutionSchema = new Schema({
     verificationDocument: {
         type: String,
         required: true
+    },
+    openCampusId: {
+        type: String,
+        // required: true
+    },
+    walletAddress: {
+        type: String,
+        // required: true
     }
   });
 

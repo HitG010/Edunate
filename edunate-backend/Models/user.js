@@ -47,6 +47,14 @@ const UserSchema = new mongoose.Schema({
     institute: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Institute'
+    },
+    openCampusId: {
+        type: String,
+        // required: true
+    },
+    walletAddress: {
+        type: String,
+        // required: true
     }
 });
 

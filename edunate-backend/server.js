@@ -120,6 +120,64 @@ app.get("/fetchUser", ensureAuthenticated, (req, res) => {
   res.json(req.user);
 });
 
+app.post("/storeOCdeets", (req, res) => {
+  console.log("OC deets: ", req.body);
+  const { openCampusID, walletAdd, user } = req.body;
+  // add data to the database
+  try{
+    const Model = user.role === 'Student' ? User : user.role === 'Alumni' ? User : Institute;
+
+    Model.findByIdAndUpdate(user._id, {
+      openCampusId: openCampusID,
+      walletAddress: walletAdd,
+    }).then((user) => {
+      console.log(user.openCampusId, user.walletAddress);
+      res.json({ message: "Data stored", user });
+    });
+    // Model.findById(user._id).then((user) => {
+    //   console.log(user.openCampusId, user.walletAddress);
+    //   res.json({ message: "Data stored", user });
+    // });
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+);
+
+app.post("/storeRole", async (req, res) => {
+  const { role, user } = req.body;
+
+  // Validate required fields
+  if (!role || !user || !user._id) {
+    return res.status(400).json({ message: "Invalid request: Role or user details missing." });
+  }
+
+  try {
+    // Determine the correct model based on the role
+    const Model = role === 'student' || role === 'alumni' ? User : Institute;
+
+    // Find and update the user's role
+    const updatedUser = await Model.findByIdAndUpdate(
+      user._id,
+      { role },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    console.log("Updated Role:", updatedUser.role);
+    return res.json({ message: "Role stored successfully.", user: updatedUser });
+  } catch (err) {
+    console.error("Error updating role:", err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+
 app.post("/instituteSignUp", (req, res) => {
   const { instituteName, email, password, address, verificationDocument } = req.body;
   // console.log("Institute Name: ", instituteName);

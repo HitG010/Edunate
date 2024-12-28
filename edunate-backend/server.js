@@ -6,8 +6,9 @@ const session = require("express-session");
 // const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("./Models/user");
-const Institute = require("./Models/institute");
-const Fundraiser = require("./Models/fundraiser");
+const Insitution = require("./Models/institute");
+const Fundraising = require("./Models/fundraiser");
+const Milestone = require("./Models/milestone");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const passport = require("./passportConfig");
@@ -15,6 +16,10 @@ const authRoutes = require("./Routes/authRoutes");
 const path = require("path");
 const { ensureAuthenticated, checkRole } = require("./authMiddleware");
 // const user = require("./Models/user");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const mongoURI =
   "mongodb+srv://bindrakartik64:QZ9VT2rSpTMBMjTC@edunate-0.2vycy.mongodb.net/?retryWrites=true&w=majority&appName=edunate-0";
@@ -162,7 +167,7 @@ app.post("/storeRole", async (req, res) => {
 
   try {
     // Determine the correct model based on the role
-    const Model = role === "student" || role === "alumni" ? User : Institute;
+    const Model = role === "student" || role === "alumni" ? User : Insitution;
 
     // Find and update the user's role
     const updatedUser = await Model.findByIdAndUpdate(
@@ -192,7 +197,7 @@ app.post("/instituteSignUp", (req, res) => {
   // console.log("Institute Name: ", instituteName);
   // res.send("Document uploaded successfully");
   // add data to the database
-  Institute.create({
+  Insitution.create({
     name: instituteName,
     email,
     password,
@@ -231,7 +236,7 @@ app.post("/updateDetails", async (req, res) => {
   // add data to the database
   try {
     const Model =
-      role === "student" ? User : role === "alumni" ? User : Institute;
+      role === "student" ? User : role === "alumni" ? User : Insitution;
     const newDetails = details[role];
     console.log("New Details:", newDetails);
     if (role === "institution") {
@@ -256,7 +261,7 @@ app.post("/updateDetails", async (req, res) => {
       });
     }
     if (role === "student" || role === "alumni") {
-      const response = await Institute.findOne({ name: newDetails.institute });
+      const response = await Insitution.findOne({ name: newDetails.institute });
       newDetails.institute = response._id;
       Model.findByIdAndUpdate(user._id, newDetails).then((user) => {
         console.log(user);
@@ -270,29 +275,30 @@ app.post("/updateDetails", async (req, res) => {
 });
 
 app.get("/getActiveFundRaisers", async (req, res) => {
-  console.log("Institution ID:", req.query.institutionId);
-  await Fundraiser.find({
-    institutionId: req.query.institutionId,
-    status: "Active",
-  })
-    .then((fundRaisers) => {
-      console.log("Fundraisers:", fundRaisers);
-      res.json(fundRaisers);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({ message: "Internal server error" });
+  try {
+    console.log("Institution ID:", req.query.institutionId);
+    const institutionId = new mongoose.Types.ObjectId(req.query.institutionId);
+    const fundRaisers = await Fundraising.find({
+      institutionId,
+      status: "Active",
     });
+
+    console.log("Fundraisers Found:", fundRaisers);
+    res.json(fundRaisers);
+  } catch (err) {
+    console.error("Error finding active fundraisers:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 app.get("/getPastFundRaisers", async (req, res) => {
-  console.log("Institution ID:", req.query.institutionId);
-  await Fundraiser.find({
+  console.log("Institution ID past:", req.query.institutionId);
+  await Fundraising.find({
     institutionId: req.query.institutionId,
     status: "Completed",
   })
     .then((fundRaisers) => {
-      console.log("Fundraisers:", fundRaisers);
+      console.log("Fundraisers past:", fundRaisers);
       res.json(fundRaisers);
     })
     .catch((err) => {
@@ -303,7 +309,7 @@ app.get("/getPastFundRaisers", async (req, res) => {
 
 app.get("/getOtherFundraisers", async (req, res) => {
   console.log("Institution ID:", req.query.institutionId);
-  await Fundraiser.find({
+  await Fundraising.find({
     institutionId: { $ne: req.query.institutionId },
     status: "Active",
   })
@@ -319,11 +325,71 @@ app.get("/getOtherFundraisers", async (req, res) => {
 
 app.post("/createFundRaiser", async (req, res) => {
   const data = req.body;
-  console.log("Data:", data);
-  Fundraiser.create(data)
+
+  const prompt =
+    "I am giving you a title, description and raised amount of a fundraiser of an educational institute. Please generate an array of milestone objects response that splits the fundraiser into 3 milestones which makes the institute reach its goal. Give me the title, description and raised amount of each milestone. Ensure that the milestone amount is distributed on the basis of the milestone motive and not simply divided quickly. Here are the details of the fundraiser: Title: " +
+    data.title +
+    " Description: " +
+    data.description +
+    " Raised Amount: " +
+    data.goalAmount;
+
+  let response;
+
+  try {
+    // Generate content using model
+    response = await model.generateContent(prompt);
+
+    // Process the response
+    response = response.response.text();
+    response = response.replace(/```json/g, "").replace(/```/g, "");
+    const milestones = JSON.parse(response);
+
+    // Add fundraiser to the database
+    const fundraiser = await Fundraising.create(data);
+    console.log("Fundraiser created:", fundraiser);
+
+    // Prepare milestones data
+    const milestonesData = milestones.map((milestone) => ({
+      title: milestone.title,
+      description: milestone.description,
+      targetAmount: milestone.raisedAmount,
+      fundraiserId: fundraiser._id,
+    }));
+
+    // Add milestones to the database
+    await Milestone.insertMany(milestonesData);
+    console.log("Milestones created:", milestonesData);
+
+    // Send response to the client
+    res.json({ message: "Fundraiser created successfully", fundraiser });
+  } catch (err) {
+    console.error("Error:", err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the fundraiser" });
+  }
+});
+
+app.get("/getFundraiser/:id", async (req, res) => {
+  console.log("Fundraiser ID:", req.params.id);
+  await Fundraising.findById(req.params.id)
     .then((fundRaiser) => {
-      console.log(fundRaiser);
-      res.json({ message: "Fundraiser created", fundRaiser });
+      console.log("Fundraiser:", fundRaiser);
+      res.json(fundRaiser);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.get("/getMilestones/:id", async (req, res) => {
+  console.log("Fundraiser ID:", req.params.id);
+  await Milestone.find({ fundraiserId: req.params.id })
+    .then((milestones) => {
+      console.log("Milestones:", milestones);
+      res.json(milestones);
     })
     .catch((err) => {
       console.log(err);

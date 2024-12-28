@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 
-export default function InstituteHome({ id }) {
+export default function AlumniHome({ id }) {
   const [fundraisers, setFundraisers] = useState([]);
   const [otherFundraisers, setOtherFundraisers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,6 +78,9 @@ export default function InstituteHome({ id }) {
                 <div className="text-lg">Goal: {fundraiser.goalAmount}</div>
                 <div className="text-lg">
                   Raised: {fundraiser.currentAmount}
+                </div>
+                <div className="text-lg">
+                  <a href={`/fundraiser/${fundraiser._id}`}>View Details</a>
                 </div>
               </div>
             ))}

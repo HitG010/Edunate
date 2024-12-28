@@ -36,7 +36,7 @@ export default function InstituteHome({ id }) {
         console.error("Error fetching fundraisers:", err);
       }
     };
-
+    // 676efadf06a9347d1aa04522
     const fetchPastFundraisers = async () => {
       try {
         console.log("Institute ID:", id);
@@ -93,6 +93,10 @@ export default function InstituteHome({ id }) {
                 <div className="text-lg">
                   Raised: {fundraiser.currentAmount}
                 </div>
+                {/* View Details link */}
+                <div className="text-lg">
+                  <a href={`/fundraiser/${fundraiser._id}`}>View Details</a>
+                </div>
               </div>
             ))}
           </div>
@@ -100,12 +104,7 @@ export default function InstituteHome({ id }) {
       </div>
       {/* Create Fundraisers */}
       <div>
-        <div
-          className="text-2xl font-bold mb-6"
-          stFundraiseryle={{ color: "#220000" }}
-        >
-          Create Fundraiser
-        </div>
+        <div className="text-2xl font-bold mb-6">Create Fundraiser</div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="text"

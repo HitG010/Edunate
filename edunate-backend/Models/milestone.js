@@ -10,6 +10,12 @@ const MilestoneSchema = new mongoose.Schema({
     ref: "Fundraising",
     required: true,
   },
+  index: { type: Number, required: true },
+  mlChecked: { type: Boolean, default: false },
+  mlApproved: { type: Boolean, default: false },
+  studentChecked: { type: Boolean, default: false },
+  studentApproved: { type: Boolean, default: false },
+  onGoing: { type: Boolean, default: false },
   // proofOfWork: { type: ProofOfWorkSchema },
 });
 

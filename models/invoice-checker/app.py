@@ -1,14 +1,13 @@
 from flask import Flask, request, jsonify
-# from pdf2image import convert_from_path
+from flask_cors import CORS  # Import Flask CORS
 from PyPDF2 import PdfReader
 import os
 
 # Flask app setup
 app = Flask(__name__)
 
-# Path to Tesseract executable (adjust based on your installation)
-# pytesseract.pytesseract.tesseract_cmd = '/usr/local/bin/tesseract'
-
+# Enable CORS for the app
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Directory to save uploaded files
 UPLOAD_FOLDER = './uploads'
@@ -41,7 +40,7 @@ def parse_invoice(text):
             items.append({"name": name, "quantity": quantity, "price": price})
     return items, total
 
-@app.route('/upload-invoice', methods=['POST'])
+@app.route('/uploadInvoice', methods=['POST'])
 def upload_invoice():
     """
     Endpoint to upload a PDF and return parsed invoice details.
@@ -57,25 +56,29 @@ def upload_invoice():
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_file.filename)
     pdf_file.save(file_path)
 
-    # try:
+    try:
         # Extract text from the PDF
-    text = extract_text_from_pdf(file_path)
+        text = extract_text_from_pdf(file_path)
+        print(text)
 
         # Parse invoice details
-    items, total = parse_invoice(text)
-    
-    print(items)
-    print(total)
-
+        items, total = parse_invoice(text)
+        
+        total_items_price = 0
+        for item in items:
+            total_items_price += item["quantity"] * float(item["price"][1:])
+        print(items)
+        print(total)
+        print(total_items_price)
+        if total_items_price == float(total[1:]):
+            print("Invoice is valid")
+        invoice_data = {"items": items, "total": total, "total_items_price": total_items_price}
+        print(invoice_data)
         # Return the parsed data as JSON
-    return jsonify({"success": True, "invoice_data": invoice_data}), 200
-    # except Exception as e:
-    #     return jsonify({"error": str(e)}), 500
-    # finally:
-    #     # Clean up the uploaded file
-    #     if os.path.exists(file_path):
-    #         os.remove(file_path)
-
+        return jsonify(invoice_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 # Run the Flask app
 if __name__ == '__main__':
-    app.run(debug=True, port = 3000)
+    app.run(debug=True, port=3000)

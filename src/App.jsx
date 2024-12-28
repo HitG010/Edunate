@@ -12,7 +12,9 @@ import RedirectHandler from "./Components/redirectHandler.jsx";
 import OcidLogin from "./pages/ocidLogin.jsx";
 import ConnectWithOCID from "./pages/Oclogin.jsx";
 import UpdateDetails from "./pages/updateDetails.jsx";
+import Admin from "./pages/Admin.jsx";
 // import UploadInvoice from "./pages/uploadInvoice.jsx";
+import UploadInvoice from "./pages/uploadInvoice.jsx";
 import Fundraiser from "./pages/fundraiser.jsx";
 
 const loginSuccess = () => {
@@ -23,7 +25,6 @@ const loginError = () => {
   console.log("Login Error");
 };
 
-import UploadInvoice from "./pages/uploadInvoice.jsx";
 function App() {
   return (
     <>
@@ -40,8 +41,9 @@ function App() {
             <Route path="/redirect" element={<RedirectHandler />} />
             <Route path="/ocidLogin" element={<OcidLogin />} />
             <Route path="/connectWithOCID" element={<ConnectWithOCID />} />
-            {/* <Route path="/uploadInvoice" element={<UploadInvoice />} /> */}
+            <Route path="/uploadInvoice" element={<UploadInvoice />} />
             <Route path="/fundraiser/:id" element={<Fundraiser />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </Router>
       </OCAuthProvider>

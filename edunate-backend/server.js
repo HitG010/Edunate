@@ -9,6 +9,7 @@ const User = require("./Models/user");
 const Insitution = require("./Models/institute");
 const Fundraising = require("./Models/fundraiser");
 const Milestone = require("./Models/milestone");
+const Review = require("./Models/review");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const passport = require("./passportConfig");
@@ -390,6 +391,33 @@ app.get("/getMilestones/:id", async (req, res) => {
     .then((milestones) => {
       console.log("Milestones:", milestones);
       res.json(milestones);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.get("/getInstituteReviews", async (req, res) => {
+  await Review.find({
+    institutionId: req.query.institutionId,
+  })
+    .then((reviews) => {
+      console.log("Reviews:", reviews);
+      res.json(reviews);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.post("/postReview", async (req, res) => {
+  const data = req.body;
+  Review.create(data)
+    .then((review) => {
+      console.log("Review created:", review);
+      res.json({ message: "Review created successfully", review });
     })
     .catch((err) => {
       console.log(err);

@@ -4,7 +4,7 @@ import Navbar from "../Components/nav";
 import { useOCAuth } from "@opencampus/ocid-connect-js";
 import axios from "axios";
 import InstituteHome from "../Components/instituteHome";
-// import StudentHome from "../Components/studentHome";
+import StudentHome from "../Components/studentHome";
 import AlumniHome from "../Components/alumniHome";
 function Home() {
   const { ocAuth } = useOCAuth();
@@ -89,7 +89,9 @@ function Home() {
         </div>
         <div className="flex flex-col gap-4 mt-8 w-[64%]">
           {role === "institution" && <InstituteHome id={user._id} />}
-          {/* {role === "student" && <StudentHome id={user.institute} />} */}
+          {role === "student" && (
+            <StudentHome id={user._id} institutionId={user.institute} />
+          )}
           {role === "alumni" && <AlumniHome id={user.institute} />}
         </div>
       </div>

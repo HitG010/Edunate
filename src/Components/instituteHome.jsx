@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { connectMetamask, createFundraiser, getContract } from "../APIs/blockchain";
 
 export default function InstituteHome({ id }) {
   const [fundraisers, setFundraisers] = useState([]);
@@ -36,7 +37,7 @@ export default function InstituteHome({ id }) {
         console.error("Error fetching fundraisers:", err);
       }
     };
-    // 676efadf06a9347d1aa04522
+
     const fetchPastFundraisers = async () => {
       try {
         console.log("Institute ID:", id);
@@ -52,17 +53,53 @@ export default function InstituteHome({ id }) {
         console.error("Error fetching fundraisers:", err);
       }
     };
+
     fetchFundraisers();
     fetchPastFundraisers();
-  }, []);
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let fundraiserId = "";
       const req = { institutionId: id, ...newFundraiser, status: "Active" };
-      await axios.post("http://localhost:5000/createFundraiser", req);
-      alert("Fundraiser created successfully.");
-      window.location.reload(); // Refresh to fetch updated fundraisers
+
+      const result = await axios.post("http://localhost:5000/createFundraiser", req).then(async (res) => {
+        console.log("Fundraiser created successfully:", res.data.fundraiser._id);
+        fundraiserId = res.data.fundraiser._id;
+
+        let milestones = [];
+        let milestoneDescs = [];
+        let milestoneAmts = [];
+        await axios
+          .get(`http://localhost:5000/getMilestones/${fundraiserId}`)
+          .then((res) => {
+            milestones = res.data.milestones;
+            milestones.forEach((milestone) => {
+              milestoneDescs.push(milestone.description);
+              milestoneAmts.push(milestone.targetAmount);
+            });
+          })
+          .catch((err) => {
+            console.error("Error fetching milestones:", err);
+          });
+
+        // Create fundraiser on the blockchain
+        console.log("Creating fundraiser on the blockchain...");
+        connectMetamask();
+        const contract = getContract();
+        const tx = await createFundraiser(
+          contract,
+          fundraiserId,
+          newFundraiser.title,
+          newFundraiser.goalAmount,
+          milestoneDescs,
+          milestoneAmts
+        );
+
+        alert("Fundraiser created successfully.");
+        // window.location.reload(); // Refresh to fetch updated fundraisers
+      });
     } catch (error) {
       console.error("Error creating fundraiser:", error);
     }
@@ -74,6 +111,7 @@ export default function InstituteHome({ id }) {
 
   return (
     <div>
+      {/* Current Fundraisers */}
       <div>
         <div className="text-2xl font-bold mb-6" style={{ color: "#220000" }}>
           Current Fundraisers
@@ -90,10 +128,7 @@ export default function InstituteHome({ id }) {
                 <div className="text-xl font-semibold">{fundraiser.title}</div>
                 <div className="text-lg">{fundraiser.description}</div>
                 <div className="text-lg">Goal: {fundraiser.goalAmount}</div>
-                <div className="text-lg">
-                  Raised: {fundraiser.currentAmount}
-                </div>
-                {/* View Details link */}
+                <div className="text-lg">Raised: {fundraiser.currentAmount}</div>
                 <div className="text-lg">
                   <a href={`/fundraiser/${fundraiser._id}`}>View Details</a>
                 </div>
@@ -102,7 +137,8 @@ export default function InstituteHome({ id }) {
           </div>
         )}
       </div>
-      {/* Create Fundraisers */}
+
+      {/* Create Fundraiser */}
       <div>
         <div className="text-2xl font-bold mb-6">Create Fundraiser</div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -138,7 +174,8 @@ export default function InstituteHome({ id }) {
           </button>
         </form>
       </div>
-      {/* Past fundraisers */}
+
+      {/* Past Fundraisers */}
       <div>
         <div className="text-2xl font-bold mb-6" style={{ color: "#220000" }}>
           Past Fundraisers
@@ -155,9 +192,7 @@ export default function InstituteHome({ id }) {
                 <div className="text-xl font-semibold">{fundraiser.title}</div>
                 <div className="text-lg">{fundraiser.description}</div>
                 <div className="text-lg">Goal: {fundraiser.goalAmount}</div>
-                <div className="text-lg">
-                  Raised: {fundraiser.currentAmount}
-                </div>
+                <div className="text-lg">Raised: {fundraiser.currentAmount}</div>
               </div>
             ))}
           </div>

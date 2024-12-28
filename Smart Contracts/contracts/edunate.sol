@@ -151,22 +151,60 @@ contract Edunate {
 
     mapping(string => uint) private idToFundraiserId;
 
-    function donate(string memory _id) public payable {
-        uint fundraiserId = idToFundraiserId[_id];
-        require(
-            fundraiserId > 0 ||
-                (fundraiserCount > 0 &&
-                    keccak256(abi.encodePacked(fundraisers[0].id)) ==
-                keccak256(abi.encodePacked(_id))),
-            "Fundraiser not found"
-        );
+    // function donate(string memory _id) public payable {
+    //     uint fundraiserId = idToFundraiserId[_id];
+    //     require(
+    //         fundraiserId > 0 ||
+    //             (fundraiserCount > 0 &&
+    //                 keccak256(abi.encodePacked(fundraisers[0].id)) ==
+    //             keccak256(abi.encodePacked(_id))),
+    //         "Fundraiser not found"
+    //     );
 
-        Fundraiser storage fundraiser = fundraisers[fundraiserId];
-        require(fundraiser.isActive, "Fundraiser is not active");
+    //     Fundraiser storage fundraiser = fundraisers[fundraiserId];
+    //     require(fundraiser.isActive, "Fundraiser is not active");
 
-        // Update fundraiser with donation
-        fundraiser.raisedAmount += msg.value;
+    //     // Update fundraiser with donation
+    //     fundraiser.raisedAmount += msg.value;
 
-        emit DonationReceived(fundraiserId, msg.sender, msg.value);
+    //     emit DonationReceived(fundraiserId, msg.sender, msg.value);
+    // }
+
+    function donate(address payable addr) public payable {
+        require(msg.value > 0, "Payment must be greater than zero");
+        addr.transfer(msg.value);
     }
+
+    function sendMilestonePayment(address payable addr) public payable{
+        require(msg.value > 0, "Payment must be greater than zero");
+        addr.transfer(msg.value);
+    }
+
+    // event PaymentReceived(address indexed sender, uint256 amount);
+
+    // // Fallback function to receive Ether directly
+    // fallback() external payable {
+    //     emit PaymentReceived(msg.sender, msg.value);
+    // }
+
+    // // Receive function to handle plain Ether transfers
+    // receive() external payable {
+    //     emit PaymentReceived(msg.sender, msg.value);
+    // }
+
+    // // Function to check the contract balance
+    // function getBalance() public view returns (uint256) {
+    //     return address(this).balance;
+    // }
+
+    // function pay() external payable {
+    //     require(msg.value > 0, "Payment must be greater than zero");
+    // }
+
+    // Withdraw function to transfer funds to an owner or any specific address
+    // function withdraw(address payable _to, uint256 _amount) public {
+    //     require(_amount <= address(this).balance, "Insufficient balance");
+    //     _to.transfer(_amount);
+    // }
+
 }

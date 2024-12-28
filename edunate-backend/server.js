@@ -9,6 +9,8 @@ const User = require("./Models/user");
 const Insitution = require("./Models/institute");
 const Fundraising = require("./Models/fundraiser");
 const Milestone = require("./Models/milestone");
+const Review = require("./Models/review");
+const AdminPayment = require("./Models/adminPayments");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const passport = require("./passportConfig");
@@ -350,7 +352,11 @@ app.post("/createFundRaiser", async (req, res) => {
     console.log("Fundraiser created:", fundraiser);
 
     // Prepare milestones data
+    console.log("Milestones:", milestones);
+    let i = 1;
     const milestonesData = milestones.map((milestone) => ({
+      onGoing: i == 1 ? true : false,
+      index: i++,
       title: milestone.title,
       description: milestone.description,
       targetAmount: milestone.raisedAmount,
@@ -390,6 +396,90 @@ app.get("/getMilestones/:id", async (req, res) => {
     .then((milestones) => {
       console.log("Milestones:", milestones);
       res.json(milestones);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.get("/getInstituteReviews", async (req, res) => {
+  await Review.find({
+    institutionId: req.query.institutionId,
+  })
+    .then((reviews) => {
+      console.log("Reviews:", reviews);
+      res.json(reviews);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.post("/postReview", async (req, res) => {
+  const data = req.body;
+  Review.create(data)
+    .then((review) => {
+      console.log("Review created:", review);
+      res.json({ message: "Review created successfully", review });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.get("/getInstituteDetails", async (req, res) => {
+  await Insitution.findOne({ fundraiserId: req.query.fundraiserId })
+    .then((institute) => {
+      console.log("Institute:", institute);
+      res.json(institute);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.post("/addPayment", async (req, res) => {
+  const data = req.body;
+  AdminPayment.create(data)
+    .then((payment) => {
+      console.log("Payment created:", payment);
+      const milestoneId = payment.milestoneId;
+      Milestone.findByIdAndUpdate(milestoneId, {
+        status: true,
+        onGoing: false,
+        mlApproved: true,
+        mlChecked: true,
+      }).then((milestone) => {
+        Milestone.findOne({
+          fundraiserId: milestone.fundraiserId,
+          index: milestone.index + 1,
+        }).then((nextMilestone) => {
+          if (nextMilestone) {
+            Milestone.findByIdAndUpdate(nextMilestone._id, {
+              onGoing: true,
+            }).then((updatedMilestone) => {
+              console.log("Milestone updated:", updatedMilestone);
+            });
+          }
+        });
+      });
+      res.json({ message: "Payment added successfully", payment });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
+
+app.get("/getPayments", async (req, res) => {
+  await AdminPayment.find({ status: "Pending" })
+    .then((payments) => {
+      console.log("Payments:", payments);
+      res.json(payments);
     })
     .catch((err) => {
       console.log(err);

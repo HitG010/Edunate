@@ -25,7 +25,7 @@ export default function UploadInvoice() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/upload-invoice",
+        "http://localhost:3000/uploadInvoice",
         formData,
         {
           headers: {

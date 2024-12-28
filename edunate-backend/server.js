@@ -117,7 +117,7 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/fetchUser", ensureAuthenticated, (req, res) => {
-  console.log("User: ", req.user._id);
+  console.log("User: ", req.user);
   res.json(req.user);
 });
 

@@ -100,8 +100,11 @@ export default function InstituteHome({ id }) {
       </div>
       {/* Create Fundraisers */}
       <div>
-        <div className="text-2xl font-bold mb-6" style={{ color: "#220000" }}>
-          Create Fundraisers
+        <div
+          className="text-2xl font-bold mb-6"
+          stFundraiseryle={{ color: "#220000" }}
+        >
+          Create Fundraiser
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input

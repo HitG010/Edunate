@@ -20,12 +20,13 @@ function Home() {
         if (userDetails) {
           setUser(userDetails);
         }
+        console.log("User Details:", userDetails);
         // console.log("User Institution:", user.institute);
         if (role === "institution" && user.role === "Student") {
           window.location.href = "/updateDetails";
         } else if (
           (role === "student" || role === "alumni") &&
-          user.institute === undefined
+          !user.institute
         ) {
           window.location.href = "/updateDetails";
         }
@@ -36,7 +37,7 @@ function Home() {
       }
     };
     fetchUserDetails();
-  }, []);
+  }, [role]);
 
   // Fetch and store role
   useEffect(() => {

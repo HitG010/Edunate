@@ -1,17 +1,10 @@
 const mongoose = require("mongoose");
 
-const ProofOfWorkSchema = new mongoose.Schema({
-  type: { type: String, required: true },
-  url: { type: String, required: true },
-  hash: { type: String, required: true },
-});
-
-const MilestoneSchema = new mongoose.Schema({
-  description: { type: String, required: true },
-  targetAmount: { type: Number, required: true },
-  completed: { type: Boolean, default: false },
-  proofOfWork: { type: ProofOfWorkSchema },
-});
+// const ProofOfWorkSchema = new mongoose.Schema({
+//   type: { type: String, required: true },
+//   url: { type: String, required: true },
+//   hash: { type: String, required: true },
+// });
 
 const FundraisingSchema = new mongoose.Schema(
   {
@@ -24,7 +17,7 @@ const FundraisingSchema = new mongoose.Schema(
     description: { type: String, required: true },
     goalAmount: { type: Number, required: true },
     currentAmount: { type: Number, default: 0 },
-    milestones: [MilestoneSchema],
+    // milestones: [MilestoneSchema],
     status: {
       type: String,
       enum: ["Active", "Completed", "Cancelled"],
@@ -38,3 +31,4 @@ const FundraisingSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("Fundraising", FundraisingSchema);
+// module.exports = mongoose.model("Milestone", MilestoneSchema);

@@ -13,6 +13,7 @@ import OcidLogin from "./pages/ocidLogin.jsx";
 import ConnectWithOCID from "./pages/Oclogin.jsx";
 import UpdateDetails from "./pages/updateDetails.jsx";
 // import UploadInvoice from "./pages/uploadInvoice.jsx";
+import Fundraiser from "./pages/fundraiser.jsx";
 
 const loginSuccess = () => {
   console.log("Login Success");
@@ -40,6 +41,7 @@ function App() {
             <Route path="/ocidLogin" element={<OcidLogin />} />
             <Route path="/connectWithOCID" element={<ConnectWithOCID />} />
             {/* <Route path="/uploadInvoice" element={<UploadInvoice />} /> */}
+            <Route path="/fundraiser/:id" element={<Fundraiser />} />
           </Routes>
         </Router>
       </OCAuthProvider>

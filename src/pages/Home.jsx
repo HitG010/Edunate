@@ -6,9 +6,16 @@ import axios from "axios";
 import InstituteHome from "../Components/instituteHome";
 import StudentHome from "../Components/studentHome";
 import AlumniHome from "../Components/alumniHome";
-import { connectMetamask, donate, getUserAccount, getContract, makePayment, sendMilestonePayment } from "../APIs/blockchain";
+import {
+  connectMetamask,
+  donate,
+  getUserAccount,
+  getContract,
+  makePayment,
+  sendMilestonePayment,
+} from "../APIs/blockchain";
 import { ethers } from "ethers";
-import Edunate from '../artifacts/contracts/Edunate.sol/Edunate.json';
+import Edunate from "../artifacts/contracts/Edunate.sol/Edunate.json";
 
 function Home() {
   const { ocAuth } = useOCAuth();
@@ -17,7 +24,7 @@ function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [account, setAccount] = useState("");
   const [contract, setContract] = useState(null);
-  const [signer , setSigner] = useState(null);
+  const [signer, setSigner] = useState(null);
 
   // Fetch user details
   useEffect(() => {
@@ -107,7 +114,6 @@ function Home() {
     }
   };
 
-
   if (isLoading) {
     return (
       <div className="flex h-screen w-full justify-center items-center">
@@ -127,7 +133,7 @@ function Home() {
             <div className="text-lg">Role: {role}</div>
           </div>
         </div>
-        <button className="px-4 py-2 bg-[#252525] text-[#f1f3f5] rounded-full font-semibold text-xl mt-6"
+        {/* <button className="px-4 py-2 bg-[#252525] text-[#f1f3f5] rounded-full font-semibold text-xl mt-6"
         onClick={async ()=>{
           const fundraiserId = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
           connectMetamask();
@@ -152,7 +158,7 @@ function Home() {
         }
         }>
           Send Milestone Payment
-        </button>
+        </button> */}
         {/* <button onClick={() => connectMetamask()}>Test button</button> */}
         <div className="flex flex-col gap-4 mt-8 w-[64%]">
           {role === "institution" && <InstituteHome id={user._id} />}

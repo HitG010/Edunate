@@ -449,7 +449,7 @@ app.post("/addPayment", async (req, res) => {
       console.log("Payment created:", payment);
       const milestoneId = payment.milestoneId;
       Milestone.findByIdAndUpdate(milestoneId, {
-        status: true,
+        completed: true,
         onGoing: false,
         mlApproved: true,
         mlChecked: true,
@@ -476,7 +476,7 @@ app.post("/addPayment", async (req, res) => {
 });
 
 app.get("/getPayments", async (req, res) => {
-  await AdminPayment.find({ status: "Pending" })
+  await AdminPayment.find({})
     .then((payments) => {
       console.log("Payments:", payments);
       res.json(payments);

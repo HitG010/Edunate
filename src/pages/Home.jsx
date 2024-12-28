@@ -6,11 +6,19 @@ import axios from "axios";
 import InstituteHome from "../Components/instituteHome";
 // import StudentHome from "../Components/studentHome";
 import AlumniHome from "../Components/alumniHome";
+import { connectMetamask, donate, getUserAccount, getContract } from "../APIs/blockchain";
+import { ethers } from "ethers";
+import Edunate from '../artifacts/contracts/Edunate.sol/Edunate.json';
+import { set } from "mongoose";
+
 function Home() {
   const { ocAuth } = useOCAuth();
   const [user, setUser] = useState(null);
   const [role, setRole] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [account, setAccount] = useState("");
+  const [contract, setContract] = useState(null);
+  const [signer , setSigner] = useState(null);
 
   // Fetch user details
   useEffect(() => {
@@ -22,14 +30,14 @@ function Home() {
         }
         console.log("User Details:", userDetails);
         // console.log("User Institution:", user.institute);
-        if (role === "institution" && user.role === "Student") {
-          window.location.href = "/updateDetails";
-        } else if (
-          (role === "student" || role === "alumni") &&
-          !user.institute
-        ) {
-          window.location.href = "/updateDetails";
-        }
+        // if (role === "institution" && user.role === "Student") {
+        //   window.location.href = "/updateDetails";
+        // } else if (
+        //   (role === "student" || role === "alumni") &&
+        //   !user.institute
+        // ) {
+        //   window.location.href = "/updateDetails";
+        // }
       } catch (err) {
         console.error("Error fetching user details:", err);
       } finally {
@@ -68,6 +76,39 @@ function Home() {
     }
   }, [user]);
 
+  const getSigner = async () => {
+    if (window.ethereum) {
+      const isBrowser = typeof window !== "undefined";
+      const newProvider = isBrowser
+        ? new ethers.BrowserProvider(window.ethereum)
+        : null;
+
+      // Request wallet connection and get account details
+      await newProvider.send("eth_requestAccounts", []);
+      const signer = newProvider.getSigner();
+      const res = await (await signer).getAddress();
+      setAccount(res);
+      setSigner(signer);
+      console.log("Connected account:", res);
+
+      // Load contract
+      const contractAddress = "0x5948C77B37139f34b86EaE6b84c570c937dC03c0";
+      const newContract = new ethers.Contract(
+        contractAddress,
+        Edunate.abi,
+        signer
+      );
+      setContract(newContract);
+      console.log("Contract:", newContract);
+
+      // return { account: res, contract: newContract };
+    } else {
+      console.error("Ethereum object not found, install MetaMask.");
+      alert("MetaMask not installed! Please install MetaMask to continue.");
+    }
+  };
+
+
   if (isLoading) {
     return (
       <div className="flex h-screen w-full justify-center items-center">
@@ -87,6 +128,20 @@ function Home() {
             <div className="text-lg">Role: {role}</div>
           </div>
         </div>
+        <button className="px-4 py-2 bg-[#252525] text-[#f1f3f5] rounded-full font-semibold text-xl mt-6"
+        onClick={async ()=>{
+          const fundraiserId = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+          connectMetamask();
+          getSigner();
+          const user = getUserAccount();
+         getContract();
+          // console.log(user, contract);
+          const res = await donate(fundraiserId);
+          console.log(res);
+        }}>
+          Donate
+        </button>
+        {/* <button onClick={() => connectMetamask()}>Test button</button> */}
         <div className="flex flex-col gap-4 mt-8 w-[64%]">
           {role === "institution" && <InstituteHome id={user._id} />}
           {/* {role === "student" && <StudentHome id={user.institute} />} */}

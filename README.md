@@ -2,7 +2,7 @@
 
 <img src="public/Edunate-landing.png" alt="Edunate" width="100%">
 
-Edunate is an EduFI platform designed to streamline the donation process for educational institutions. By leveraging blockchain technology and robust AI/ML techniques, Edunate ensures transparency, traceability, and accountability for every donation made. The platform empowers alumni to contribute to educational institutions in a secure and efficient manner, while ensuring that their donations are utilized effectively.
+Edunate is an EduFI platform designed to streamline the donation process for educational institutions. By leveraging blockchain technology and robust AI/ML techniques, Edunate ensures transparency, traceability, and accountability for every donation made. The platform empowers alumni to contribute to educational institutions in a secure and efficient manner, while ensuring that their donations are utilized effectively. All three, students, alumni, and institutions can interact seamlessly on the platform, creating a collaborative ecosystem that drives positive change in the education sector.
 
 ## Features
 
@@ -21,24 +21,25 @@ Edunate is an EduFI platform designed to streamline the donation process for edu
 - **Targeted Fundraising:** Donors can choose specific projects or goals to support, ensuring their contributions directly impact the areas that matter to them.
 - **AI/ML based auto pool generation:** Our AI/ML model generates the pool based on the student's reviews and the institution's needs.
 
-### 3. **Alumni Interaction & Voting**
+### 3. **Student Voting and Application**
 
 - **Student Voting:** Students can vote for specific projects, allowing the alumni to see the projects with the most support.
 - **Scholarship Applications:** Students can apply for scholarships, enabling direct donations from alumni based on specific needs.
+- **AI/ML based student reviews:** Our AI/ML model generates the student reviews based on the student's performance and the institution's needs.
 
 ### 4. **Milestone Tracking**
 
 - **Track Progress:** Our handcrafted AI/ML(Transformer and GANs) can create milestones for each fundraising campaign, and donors can see how their contributions are making a difference in reaching the goal.
 - **Conditional Releases:** Payments are only released when milestones are reached and verified by both the institution and the students.
 
-### 5. **Transparent Fund Utilization**
+### 5. **Fraud Detection**
 
-- **Invoice Verification:** Institutions can upload invoices for projects funded by donations. These invoices are passed through ML pipleine (Swin Transformer + VAE(Variational Auto Encoder)) to verify the authenticity of the invoices.
+- **Invoice Verification:** Institutions can upload invoices for projects funded by donations. These invoices are passed through ML pipleine (Swin Transformer + VAE(Variational Auto Encoder)) to verify the authenticity of the invoices. Once verified, the payment for a milestone is released.
 
 ### 6. **Edunate Token (EDU)**
 
 - **Transaction Fee Reduction:** The platform uses a native token (EDU) for transaction processing and to reduce blockchain gas fees.
-- **Token-Based Voting:** Alumni can use the EDU token to vote on institutional projects, ensuring that they have a direct say in how donations are spent.
+- **Open Chain ID:** EDU tokens can be used as an open chain ID for alumni and students, enabling them to access exclusive features and benefits on the platform.
 
 ### 7. **Security and Privacy**
 
@@ -69,6 +70,7 @@ Edunate is an EduFI platform designed to streamline the donation process for edu
 - **Transparency**: Donors can see exactly how their funds are being used, with every transaction recorded on the blockchain.
 - **Accountability**: Milestone-based payments ensure that donations are spent according to the goals set by the institution.
 - **Efficiency**: The use of smart contracts automates fundraising processes, reducing manual overhead and ensuring faster processing times.
+- **Advanced Technology**: AI/ML models are used to generate student reviews, create fundraising pools, and verify invoices, enhancing the platform's capabilities.
 - **Impact**: Students have a say in which projects are funded, ensuring that their needs are addressed directly.
 
 ---
